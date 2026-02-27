@@ -1,0 +1,3260 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caisse Boulangerie</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wheat: #F4E8D0;
+            --crust: #D4A574;
+            --warm-brown: #8B6F47;
+            --deep-brown: #5C4A3A;
+            --cream: #FFF8F0;
+            --accent: #C17A3F;
+            --shadow: rgba(92, 74, 58, 0.1);
+            --shadow-lg: rgba(92, 74, 58, 0.15);
+        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Karla', sans-serif;
+        background: linear-gradient(135deg, var(--wheat) 0%, var(--cream) 100%);
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(196, 122, 63, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(212, 165, 116, 0.04) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* MODE PORTRAIT (par défaut - mobile/tablette verticale) */
+    .container {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+        height: 100vh;
+        gap: 0;
+    }
+
+    /* MODE PAYSAGE (tablette/desktop) */
+    @media (min-width: 768px) and (orientation: landscape) {
+        .container {
+            grid-template-columns: 1fr 350px;
+            grid-template-rows: 1fr;
+        }
+    }
+
+    /* MODE DESKTOP LARGE */
+    @media (min-width: 1200px) {
+        .container {
+            grid-template-columns: 1fr 400px;
+        }
+    }
+
+    .products-section {
+        padding: 20px;
+        overflow-y: auto;
+        background: var(--cream);
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .products-section {
+            padding: 15px;
+        }
+    }
+
+    .header {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .header {
+            margin-bottom: 10px;
+        }
+    }
+
+    .header-left h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--deep-brown);
+        font-weight: 900;
+        letter-spacing: -1px;
+        margin-bottom: 3px;
+        animation: slideInDown 0.6s ease-out;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .header-left h1 {
+            font-size: 1.5rem;
+        }
+    }
+
+    .header-left p {
+        color: var(--warm-brown);
+        font-size: 0.85rem;
+        font-weight: 500;
+        animation: slideInDown 0.6s ease-out 0.1s both;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .header-left p {
+            font-size: 0.75rem;
+        }
+    }
+
+    .header-right {
+        text-align: right;
+        display: flex;
+        gap: 8px;
+        flex-direction: column;
+    }
+
+    .header-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .stats-btn, .edit-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-family: 'Karla', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px var(--shadow-lg);
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .stats-btn, .edit-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+    }
+
+    .edit-btn {
+        background: #9b59b6;
+    }
+
+    .edit-btn.active {
+        background: #e74c3c;
+    }
+
+    .stats-btn:hover, .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px var(--shadow-lg);
+    }
+
+    .daily-stats {
+        margin-top: 8px;
+        padding: 8px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .daily-stats {
+            padding: 6px;
+            margin-top: 5px;
+        }
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+        font-size: 0.75rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .stat-row {
+            font-size: 0.7rem;
+            margin-bottom: 3px;
+        }
+    }
+
+    .stat-row:last-child {
+        margin-bottom: 0;
+        padding-top: 5px;
+        border-top: 2px solid var(--wheat);
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .stat-label {
+        color: var(--warm-brown);
+    }
+
+    .stat-value {
+        color: var(--deep-brown);
+        font-weight: 600;
+    }
+
+    .edit-mode-banner {
+        display: none;
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+        animation: slideInDown 0.3s ease-out;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .edit-mode-banner {
+            padding: 8px;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+        }
+    }
+
+    .edit-mode-banner.active {
+        display: block;
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        animation: fadeIn 0.4s ease-out 0.2s both;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .breadcrumb {
+            margin-bottom: 10px;
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .breadcrumb button {
+        background: white;
+        border: 2px solid var(--crust);
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: 'Karla', sans-serif;
+        font-weight: 600;
+        color: var(--deep-brown);
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .breadcrumb button {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+    }
+
+    .breadcrumb button:hover {
+        background: var(--crust);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow-lg);
+    }
+
+    .breadcrumb span {
+        color: var(--warm-brown);
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .breadcrumb span {
+            font-size: 0.75rem;
+        }
+    }
+
+    .grid-container {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+        animation: fadeInUp 0.5s ease-out 0.3s both;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .grid {
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px var(--shadow);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .card {
+            padding: 10px;
+            border-radius: 10px;
+        }
+    }
+
+    .card.dragging {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+
+    .card.drag-over {
+        border-color: var(--accent);
+        border-style: dashed;
+        background: var(--wheat);
+    }
+
+    .card.edit-mode {
+        cursor: move;
+    }
+
+    .card.edit-mode::after {
+        content: '⋮⋮';
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 1rem;
+        color: var(--accent);
+        font-weight: 900;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .card.edit-mode::after {
+            top: 5px;
+            right: 5px;
+            font-size: 0.9rem;
+        }
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--crust));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px var(--shadow-lg);
+        border-color: var(--crust);
+    }
+
+    .card:active {
+        transform: translateY(-3px) scale(0.98);
+    }
+
+    .card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        color: var(--deep-brown);
+        font-weight: 700;
+        margin-bottom: 5px;
+        line-height: 1.2;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .card-title {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+    }
+
+    .card-count {
+        color: var(--warm-brown);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .card-count {
+            font-size: 0.7rem;
+        }
+    }
+
+    .card-price {
+        font-size: 1.1rem;
+        color: var(--accent);
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .card-price {
+            font-size: 0.95rem;
+            margin-top: 3px;
+        }
+    }
+
+    .ticket-section {
+        background: linear-gradient(180deg, var(--deep-brown) 0%, var(--warm-brown) 100%);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+        max-height: 50vh;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-section {
+            padding: 15px;
+            max-height: 100vh;
+        }
+    }
+
+    .ticket-header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 2px dashed var(--crust);
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-header {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+    }
+
+    .ticket-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: var(--wheat);
+        font-weight: 900;
+        margin-bottom: 3px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-header h2 {
+            font-size: 1.2rem;
+        }
+    }
+
+    .ticket-header p {
+        color: var(--crust);
+        font-size: 0.75rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-header p {
+            font-size: 0.65rem;
+        }
+    }
+
+    .ticket-items {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 12px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-items {
+            margin-bottom: 10px;
+        }
+    }
+
+    .ticket-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: slideInRight 0.3s ease-out;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-item {
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .ticket-item-info {
+        flex: 1;
+    }
+
+    .ticket-item-name {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 3px;
+        font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-item-name {
+            font-size: 0.75rem;
+        }
+    }
+
+    .ticket-item-details {
+        color: var(--crust);
+        font-size: 0.7rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-item-details {
+            font-size: 0.65rem;
+        }
+    }
+
+    .ticket-item-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-item-controls {
+            gap: 6px;
+        }
+    }
+
+    .qty-btn {
+        background: var(--accent);
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .qty-btn {
+            width: 24px;
+            height: 24px;
+            font-size: 0.9rem;
+        }
+    }
+
+    .qty-btn:hover {
+        background: var(--crust);
+        transform: scale(1.1);
+    }
+
+    .qty-btn:active {
+        transform: scale(0.95);
+    }
+
+    .ticket-item-qty {
+        color: white;
+        font-weight: 700;
+        min-width: 25px;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-item-qty {
+            min-width: 20px;
+            font-size: 0.85rem;
+        }
+    }
+
+    .ticket-item-price {
+        color: var(--wheat);
+        font-weight: 700;
+        font-size: 0.95rem;
+        min-width: 60px;
+        text-align: right;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-item-price {
+            font-size: 0.85rem;
+            min-width: 50px;
+        }
+    }
+
+    .ticket-summary {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: auto;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .ticket-summary {
+            padding: 12px;
+            border-radius: 8px;
+        }
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: var(--wheat);
+        font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .summary-row {
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+        }
+    }
+
+    .summary-row.total {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: white;
+        padding-top: 12px;
+        border-top: 2px solid var(--crust);
+        margin-top: 8px;
+        margin-bottom: 15px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .summary-row.total {
+            font-size: 1.1rem;
+            padding-top: 10px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+    }
+
+    .payment-section {
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .payment-section {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+    }
+
+    .payment-section label {
+        display: block;
+        color: var(--wheat);
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .payment-section label {
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+        }
+    }
+
+    .payment-input-container {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .payment-input-container {
+            margin-bottom: 8px;
+        }
+    }
+
+    .payment-input {
+        width: 100%;
+        padding: 10px 35px 10px 12px;
+        border: 2px solid var(--crust);
+        border-radius: 6px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'Karla', sans-serif;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--deep-brown);
+        transition: all 0.3s ease;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .payment-input {
+            padding: 8px 30px 8px 10px;
+            font-size: 0.95rem;
+        }
+    }
+
+    .payment-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(193, 122, 63, 0.2);
+    }
+
+    .currency-symbol {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--warm-brown);
+        font-size: 1.1rem;
+        font-weight: 700;
+        pointer-events: none;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .currency-symbol {
+            right: 10px;
+            font-size: 0.95rem;
+        }
+    }
+
+    .change-display {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        padding: 12px;
+        border-radius: 6px;
+        text-align: center;
+        animation: slideInUp 0.3s ease-out;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .change-display {
+            padding: 10px;
+        }
+    }
+
+    .change-display.negative {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .change-label {
+        color: white;
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+        opacity: 0.9;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .change-label {
+            font-size: 0.65rem;
+            margin-bottom: 3px;
+        }
+    }
+
+    .change-amount {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 900;
+        font-family: 'Playfair Display', serif;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .change-amount {
+            font-size: 1.2rem;
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .quick-amounts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .quick-amounts {
+            gap: 5px;
+            margin-top: 6px;
+        }
+    }
+
+    .quick-amount-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid var(--crust);
+        padding: 6px;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .quick-amount-btn {
+            padding: 5px;
+            font-size: 0.7rem;
+        }
+    }
+
+    .quick-amount-btn:hover {
+        background: var(--crust);
+        transform: translateY(-2px);
+    }
+
+    .quick-amount-btn:active {
+        transform: translateY(0);
+    }
+
+    .btn-card-payment {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-family: 'Karla', sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .btn-card-payment {
+            padding: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+    }
+
+    .btn-card-payment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+    }
+
+    .btn-card-payment:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    .btn-card-payment.processing {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .action-buttons {
+            gap: 6px;
+        }
+    }
+
+    .btn {
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Karla', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .btn {
+            padding: 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+    }
+
+    .btn-clear {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-clear:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .btn-validate {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--crust) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(193, 122, 63, 0.4);
+    }
+
+    .btn-validate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(193, 122, 63, 0.5);
+    }
+
+    .btn-validate:active, .btn-clear:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    .empty-cart {
+        text-align: center;
+        color: var(--crust);
+        padding: 30px 15px;
+        font-size: 0.9rem;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+        .empty-cart {
+            padding: 20px 10px;
+            font-size: 0.8rem;
+        }
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow: hidden;
+        animation: slideInUp 0.3s ease-out;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--deep-brown) 0%, var(--warm-brown) 100%);
+        padding: 25px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        font-family: 'Playfair Display', serif;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 900;
+    }
+
+    .modal-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 30px;
+        overflow-y: auto;
+        max-height: calc(80vh - 200px);
+    }
+
+    .history-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, var(--wheat) 0%, var(--cream) 100%);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .summary-card-label {
+        color: var(--warm-brown);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .summary-card-value {
+        color: var(--deep-brown);
+        font-size: 1.8rem;
+        font-weight: 900;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .history-item {
+        background: var(--cream);
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 4px solid var(--accent);
+        transition: all 0.3s ease;
+    }
+
+    .history-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px var(--shadow-lg);
+    }
+
+    .history-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .history-item-time {
+        color: var(--warm-brown);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .history-item-total {
+        color: var(--accent);
+        font-size: 1.3rem;
+        font-weight: 900;
+    }
+
+    .history-item-products {
+        color: var(--deep-brown);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+
+    .history-item-payment {
+        display: flex;
+        gap: 20px;
+        font-size: 0.85rem;
+        color: var(--warm-brown);
+    }
+
+    .payment-method-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .payment-method-badge.card {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+    }
+
+    .payment-method-badge.cash {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        color: white;
+    }
+
+    .modal-footer {
+        background: var(--wheat);
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .clear-history-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .clear-history-btn:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
+
+    .products-section::-webkit-scrollbar,
+    .grid-container::-webkit-scrollbar,
+    .ticket-items::-webkit-scrollbar,
+    .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .products-section::-webkit-scrollbar-track,
+    .grid-container::-webkit-scrollbar-track,
+    .modal-body::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+    }
+
+    .products-section::-webkit-scrollbar-thumb,
+    .grid-container::-webkit-scrollbar-thumb,
+    .modal-body::-webkit-scrollbar-thumb {
+        background: var(--crust);
+        border-radius: 10px;
+    }
+
+    .ticket-items::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .ticket-items::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 10px;
+    }
+
+    @keyframes successPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .btn-validate.success, .btn-card-payment.success {
+        animation: successPulse 0.5s ease;
+    }
+
+    .no-sales {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--warm-brown);
+    }
+
+    .no-sales-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 767px) {
+        .history-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            width: 95%;
+            max-height: 90vh;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="products-section">
+            <div class="header">
+                <div class="header-left">
+                    <h1>🥐 La Boulangerie</h1>
+                    <p>Système de Caisse</p>
+                </div>
+                <div class="header-right">
+                    <div class="header-buttons">
+                        <button class="edit-btn" id="editBtn" onclick="toggleEditMode()">
+                            ✏️ Éditer
+                        </button>
+                        <button class="stats-btn" onclick="openHistory()">
+                            📊 Stats
+                        </button>
+                    </div>
+                    <div class="daily-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Ventes:</span>
+                            <span class="stat-value" id="dailySalesCount">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Total:</span>
+                            <span class="stat-value" id="dailyTotal">0,00 €</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <div class="edit-mode-banner" id="editBanner">
+            ⚠️ Mode Édition : Glissez-déposez pour réorganiser
+        </div>
+
+        <div class="breadcrumb" id="breadcrumb">
+            <button onclick="goHome()">🏠 Accueil</button>
+        </div>
+
+        <div class="grid-container">
+            <div class="grid" id="productGrid"></div>
+        </div>
+    </div>
+
+    <div class="ticket-section">
+        <div class="ticket-header">
+            <h2>Ticket</h2>
+            <p id="ticketDate"></p>
+        </div>
+
+        <div class="ticket-items" id="ticketItems">
+            <div class="empty-cart">Panier vide</div>
+        </div>
+
+        <div class="ticket-summary">
+            <div class="summary-row">
+                <span>HT</span>
+                <span id="subtotalHT">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>TVA</span>
+                <span id="taxAmount">0,00 €</span>
+            </div>
+            <div class="summary-row total">
+                <span>TOTAL</span>
+                <span id="totalTTC">0,00 €</span>
+            </div>
+
+            <button class="btn-card-payment" id="cardPaymentBtn" onclick="processCardPayment()" style="display: none;">
+                💳 Carte
+            </button>
+
+            <div class="payment-section" id="paymentSection" style="display: none;">
+                <label for="paymentInput">💶 Espèces</label>
+                <div class="payment-input-container">
+                    <input 
+                        type="number" 
+                        id="paymentInput" 
+                        class="payment-input" 
+                        placeholder="0,00"
+                        step="0.01"
+                        min="0"
+                        inputmode="decimal"
+                    >
+                    <span class="currency-symbol">€</span>
+                </div>
+                
+                <div class="quick-amounts">
+                    <button class="quick-amount-btn" onclick="setQuickAmount(5)">5 €</button>
+                    <button class="quick-amount-btn" onclick="setQuickAmount(10)">10 €</button>
+                    <button class="quick-amount-btn" onclick="setQuickAmount(20)">20 €</button>
+                    <button class="quick-amount-btn" onclick="setQuickAmount(50)">50 €</button>
+                    <button class="quick-amount-btn" onclick="setQuickAmount(100)">100 €</button>
+                    <button class="quick-amount-btn" onclick="setExactAmount()">Exact</button>
+                </div>
+                
+                <div id="changeDisplay" style="display: none; margin-top: 12px;"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-clear" onclick="clearCart()">Annuler</button>
+                <button class="btn btn-validate" id="validateBtn" onclick="validateOrder()">Espèces</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="historyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📊 Historique des ventes</h2>
+            <button class="modal-close" onclick="closeHistory()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="history-summary">
+                <div class="summary-card">
+                    <div class="summary-card-label">Ventes totales</div>
+                    <div class="summary-card-value" id="totalSalesCount">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Chiffre d'affaires</div>
+                    <div class="summary-card-value" id="totalRevenue">0 €</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-label">Panier moyen</div>
+                    <div class="summary-card-value" id="averageBasket">0 €</div>
+                </div>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="clear-history-btn" onclick="clearHistory()">🗑️ Effacer</button>
+            <span style="color: var(--warm-brown); font-size: 0.85rem;">Sauvegardé localement</span>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const productsData = {
+    "Viennoiseries": {
+            "Viennoiserie": [
+                    {
+                            "nom": "Cake orange",
+                            "prix": 7.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bostock",
+                            "prix": 1.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croissant chocolat",
+                            "prix": 1.35,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croiss.choco amand.",
+                            "prix": 1.75,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croissant nature",
+                            "prix": 1.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Escargot raisin",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croissant amandes",
+                            "prix": 1.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Chinois chocolat",
+                            "prix": 5.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche sucre",
+                            "prix": 4.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche parisienne",
+                            "prix": 1.1,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche 300g cit oc",
+                            "prix": 3.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Marbre",
+                            "prix": 6.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croissant nutella",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain chocolat",
+                            "prix": 1.35,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche nature",
+                            "prix": 4.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche raisin",
+                            "prix": 5.05,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche chocolat",
+                            "prix": 5.15,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte au sucre",
+                            "prix": 6.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croissant pistache",
+                            "prix": 1.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Huit",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Chausson pommes",
+                            "prix": 2.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Framboisine",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Torsade",
+                            "prix": 2.1,
+                            "taxe": 5.5
+                    }
+            ],
+            "Sans catégorie": [
+                    {
+                            "nom": "Viennoise nature",
+                            "prix": 3.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Mini viennoiseries",
+                            "prix": 0.75,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brioche 60g",
+                            "prix": 0.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartelette sucre",
+                            "prix": 1.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bostock",
+                            "prix": 1.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Viennoise choco",
+                            "prix": 4.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte au sucre",
+                            "prix": 5.9,
+                            "taxe": 5.5
+                    }
+            ]
+    },
+    "Sucre": {
+            "Sucre": [
+                    {
+                            "nom": "Boudin coockies",
+                            "prix": 5.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Petit cookie",
+                            "prix": 1.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Galette pomme",
+                            "prix": 17.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bugnes",
+                            "prix": 3.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain d'epices sucre",
+                            "prix": 7.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Chouquettes x6",
+                            "prix": 1.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Galette des rois gr",
+                            "prix": 19.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Chouquettes x6",
+                            "prix": 1.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Chouquettes x12",
+                            "prix": 2.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Nougatine",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain d'epices",
+                            "prix": 6.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bonhomme nature",
+                            "prix": 1.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bonhomme sucre",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Saint nicolas choco",
+                            "prix": 3.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Beignet bretzel",
+                            "prix": 2.9,
+                            "taxe": 5.5
+                    }
+            ],
+            "Sans catégorie": [
+                    {
+                            "nom": "Viennoise choco",
+                            "prix": 4.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Viennoise nature",
+                            "prix": 3.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Petits biscuits",
+                            "prix": 4.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain d'epic.enrobe",
+                            "prix": 2.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Petit bonhomme natu",
+                            "prix": 1.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pot fromage blanc",
+                            "prix": 1.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Glace 3,50?",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brownies",
+                            "prix": 2.8,
+                            "taxe": 5.5
+                    }
+            ]
+    },
+    "Pains": {
+            "Baguette": [
+                    {
+                            "nom": "Octobre rose petit",
+                            "prix": 1.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Octobre rose grand",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tiers de tradition",
+                            "prix": 0.45,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Ficelle",
+                            "prix": 0.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Demi tradition",
+                            "prix": 0.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Demi baguette",
+                            "prix": 0.55,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Baguette extra long.",
+                            "prix": 1.25,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Baguettes special",
+                            "prix": 1.75,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tradibio",
+                            "prix": 1.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Demi baguette",
+                            "prix": 0.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Baguette epi",
+                            "prix": 1.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tradition",
+                            "prix": 1.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Baguette longue",
+                            "prix": 1.1,
+                            "taxe": 5.5
+                    }
+            ],
+            "Pain speciaux": [
+                    {
+                            "nom": "Complet",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Seigle",
+                            "prix": 2.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Muesli",
+                            "prix": 3.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Campagne levain",
+                            "prix": 2.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Epeautre",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Epoca",
+                            "prix": 2.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Sauvageon",
+                            "prix": 3.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Blanc cereales",
+                            "prix": 2.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain du moment 4?",
+                            "prix": 4.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain figues",
+                            "prix": 3.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Noir cereales",
+                            "prix": 2.85,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Noix",
+                            "prix": 2.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Mais",
+                            "prix": 2.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain de mie",
+                            "prix": 3.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain burger",
+                            "prix": 1.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Forgeron",
+                            "prix": 2.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain de mie au noix",
+                            "prix": 25.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain de mie complet",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Babka truffe",
+                            "prix": 4.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Baguette garnie",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Brochette pains",
+                            "prix": 4.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain du moment 3,30",
+                            "prix": 3.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain potiron",
+                            "prix": 1.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Baguette garnie",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Babka",
+                            "prix": 2.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Divers",
+                            "prix": 0.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Boule blanche",
+                            "prix": 1.95,
+                            "taxe": 5.5
+                    }
+            ],
+            "Divers": [
+                    {
+                            "nom": "Divers",
+                            "prix": 0.0,
+                            "taxe": 5.5
+                    }
+            ]
+    },
+    "Divers": {
+            "Bonbons": [
+                    {
+                            "nom": "Cabas",
+                            "prix": 0.3,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Lait",
+                            "prix": 2.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Miel artisanal",
+                            "prix": 10.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Sac brun",
+                            "prix": 0.2,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Petite bougie",
+                            "prix": 0.2,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Menu",
+                            "prix": 0.01,
+                            "taxe": 0.0
+                    },
+                    {
+                            "nom": "Grande bougie",
+                            "prix": 1.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Bougie extra longue",
+                            "prix": 2.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Levure 45 grs",
+                            "prix": 0.6,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Caisse pro",
+                            "prix": 15.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "6 oeufs",
+                            "prix": 2.7,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Livraison",
+                            "prix": 0.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Viennoiseries",
+                            "prix": 1.3,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Biere au pain",
+                            "prix": 3.5,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Baguettes",
+                            "prix": 1.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Farine gd epautre",
+                            "prix": 1.8,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Viennoiseries",
+                            "prix": 1.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Farine chambley t80",
+                            "prix": 4.95,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Choux vide",
+                            "prix": 0.17,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Confiture",
+                            "prix": 9.9,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Jus de fruits",
+                            "prix": 4.5,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Sac gris al",
+                            "prix": 1.5,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Sachet de bonbons",
+                            "prix": 1.5,
+                            "taxe": 20.0
+                    }
+            ]
+    },
+    "Patisseries": {
+            "Petites patisseries": [
+                    {
+                            "nom": "Buche cab classique",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Entremets",
+                            "prix": 4.1,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Boite 12 choix",
+                            "prix": 18.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Mille feuilles",
+                            "prix": 3.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "16 choux",
+                            "prix": 20.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pot mousse choco",
+                            "prix": 2.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pot mousse frambois",
+                            "prix": 2.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Opera",
+                            "prix": 3.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Edelweiss",
+                            "prix": 3.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Fraisier",
+                            "prix": 3.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Flan",
+                            "prix": 2.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Choux individuel",
+                            "prix": 1.4,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartelette chocolat",
+                            "prix": 3.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Eclair vanille",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartelette fraise",
+                            "prix": 3.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Eclair cafe",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartelette amandine",
+                            "prix": 2.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Eclair chocolat",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartel.framboises",
+                            "prix": 3.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Eclair pistache",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartelette citron",
+                            "prix": 3.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Eclair choco blanc",
+                            "prix": 2.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tartel.citr.mering.",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Eclair framboises",
+                            "prix": 2.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Flower powers ind",
+                            "prix": 4.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Paris-brest",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Part de buche mouss",
+                            "prix": 4.6,
+                            "taxe": 5.5
+                    }
+            ],
+            "Grandes patisseries": [
+                    {
+                            "nom": "8 pers",
+                            "prix": 35.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte f/f 6 pers",
+                            "prix": 28.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte f/f 8 pers",
+                            "prix": 35.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "5 pers",
+                            "prix": 22.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "7 pers",
+                            "prix": 30.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Genoise fraises",
+                            "prix": 3.6,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte fraise",
+                            "prix": 15.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "10 pers",
+                            "prix": 44.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte au fromage",
+                            "prix": 14.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "4 pers",
+                            "prix": 17.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Grande tarte amand.",
+                            "prix": 19.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Grande tarte",
+                            "prix": 17.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Paris-brest",
+                            "prix": 19.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Buche",
+                            "prix": 27.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte framboises",
+                            "prix": 19.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Buche cab classique",
+                            "prix": 20.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte chocolat",
+                            "prix": 14.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Buche cab speciale",
+                            "prix": 23.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Tarte f/f 10 pers",
+                            "prix": 47.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Petite tarte cuite",
+                            "prix": 12.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "6 pers",
+                            "prix": 26.4,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Gateau deco",
+                            "prix": 0.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Divers",
+                            "prix": 0.0,
+                            "taxe": 5.5
+                    }
+            ]
+    },
+    "Sales": {
+            "Sans catégorie": [
+                    {
+                            "nom": "Mini quiche lorr.",
+                            "prix": 5.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pate chasseur",
+                            "prix": 3.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Mini quiche lorr.",
+                            "prix": 2.1,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Ficelles garnies",
+                            "prix": 2.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Plu 167",
+                            "prix": 0.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Petits biscuits",
+                            "prix": 3.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Plu 196",
+                            "prix": 0.0,
+                            "taxe": 5.5
+                    }
+            ],
+            "Sales": [
+                    {
+                            "nom": "Croissant sale",
+                            "prix": 3.4,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Chausson thillois",
+                            "prix": 6.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Wrap saumon",
+                            "prix": 5.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain burger",
+                            "prix": 1.1,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pate chasseur",
+                            "prix": 4.4,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Burger",
+                            "prix": 5.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Roll sale",
+                            "prix": 3.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Cake noel",
+                            "prix": 7.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Quiche lorraine",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Fougasses",
+                            "prix": 3.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Cake lardons olives",
+                            "prix": 7.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bouchees vide",
+                            "prix": 1.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Reduction salee",
+                            "prix": 0.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pain surprise",
+                            "prix": 39.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bretzel lardons fro",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Croque monsieur",
+                            "prix": 4.2,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Vol au vent garnies",
+                            "prix": 4.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bretzel garnie",
+                            "prix": 3.5,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Toulousain",
+                            "prix": 3.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Bruschetta",
+                            "prix": 4.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Petite bruschetta",
+                            "prix": 4.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Part pizza",
+                            "prix": 2.7,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Pate lorrain",
+                            "prix": 3.8,
+                            "taxe": 5.5
+                    }
+            ]
+    },
+    "Boissons": {
+            "Boissons": [
+                    {
+                            "nom": "Red bull g",
+                            "prix": 3.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Double expresso",
+                            "prix": 2.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Eau 1€",
+                            "prix": 1.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Chocolat chaud",
+                            "prix": 2.2,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Boiss 2€",
+                            "prix": 2.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Redbull 2,50€",
+                            "prix": 2.5,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Cafe",
+                            "prix": 1.4,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Cafe au lait",
+                            "prix": 1.7,
+                            "taxe": 20.0
+                    }
+            ]
+    },
+    "Noel": {
+            "Paques": [
+                    {
+                            "nom": "Oeuf decore noir",
+                            "prix": 15.9,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Oeuf decore lait",
+                            "prix": 15.9,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Petite poule tasse",
+                            "prix": 17.9,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Sucette poussin",
+                            "prix": 2.9,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Poule lait +oeuf",
+                            "prix": 7.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Poule blanc+oeuf",
+                            "prix": 7.0,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Boite petit oeufs",
+                            "prix": 5.3,
+                            "taxe": 20.0
+                    },
+                    {
+                            "nom": "Grand oeuf lait gar",
+                            "prix": 36.0,
+                            "taxe": 20.0
+                    }
+            ],
+            "Noel": [
+                    {
+                            "nom": "Sucettes choco",
+                            "prix": 3.1,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Part cab pra, pis",
+                            "prix": 4.2,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Part cab alcool",
+                            "prix": 4.3,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Buche 3 choco",
+                            "prix": 30.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Buche mousses",
+                            "prix": 28.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Buche cab v,c,choco",
+                            "prix": 22.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Buche cab pra,pis",
+                            "prix": 24.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Buche cab alcool",
+                            "prix": 25.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Pain surprise",
+                            "prix": 39.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Pain surprise mil",
+                            "prix": 40.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Pere noel",
+                            "prix": 4.9,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Panettone",
+                            "prix": 8.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Part 3 choco",
+                            "prix": 5.1,
+                            "taxe": 0.0
+                    },
+                    {
+                            "nom": "Part mousses",
+                            "prix": 4.8,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Part cab v,c,cho",
+                            "prix": 3.8,
+                            "taxe": 10.0
+                    }
+            ]
+    },
+    "Chocolat": {
+            "Choco paques": [
+                    {
+                            "nom": "Grand oeuf",
+                            "prix": 26.0,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Poussin",
+                            "prix": 7.9,
+                            "taxe": 10.0
+                    },
+                    {
+                            "nom": "Petit oeufs",
+                            "prix": 5.6,
+                            "taxe": 10.0
+                    }
+            ]
+    },
+    "Sandwichs": {
+            "Sandwichs": [
+                    {
+                            "nom": "Sandwich 4,00",
+                            "prix": 4.0,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Saumon 4,30",
+                            "prix": 4.3,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Italien 4,40",
+                            "prix": 4.4,
+                            "taxe": 5.5
+                    }
+            ]
+    }
+
+};
+    let currentView = 'families';
+    let currentFamily = null;
+    let currentCategory = null;
+    let cart = [];
+    let currentTotal = 0;
+    let salesHistory = [];
+    let editMode = false;
+    let customOrder = {};
+
+    function init() {
+        loadSalesHistory();
+        loadCustomOrder();
+        updateTicketDate();
+        updateDailyStats();
+        showFamilies();
+        
+        const paymentInput = document.getElementById('paymentInput');
+        paymentInput.addEventListener('input', calculateChange);
+    }
+
+    function loadSalesHistory() {
+        const saved = localStorage.getItem('boulangerieSales');
+        if (saved) {
+            salesHistory = JSON.parse(saved);
+        }
+    }
+
+    function saveSalesHistory() {
+        localStorage.setItem('boulangerieSales', JSON.stringify(salesHistory));
+        updateDailyStats();
+    }
+
+    function loadCustomOrder() {
+        const saved = localStorage.getItem('boulangerieCustomOrder');
+        if (saved) {
+            customOrder = JSON.parse(saved);
+        }
+    }
+
+    function saveCustomOrder() {
+        localStorage.setItem('boulangerieCustomOrder', JSON.stringify(customOrder));
+    }
+
+    function toggleEditMode() {
+        editMode = !editMode;
+        const editBtn = document.getElementById('editBtn');
+        const editBanner = document.getElementById('editBanner');
+        
+        if (editMode) {
+            editBtn.classList.add('active');
+            editBtn.innerHTML = '✓ OK';
+            editBanner.classList.add('active');
+        } else {
+            editBtn.classList.remove('active');
+            editBtn.innerHTML = '✏️ Éditer';
+            editBanner.classList.remove('active');
+        }
+        
+        refreshCurrentView();
+    }
+
+    function refreshCurrentView() {
+        if (currentView === 'families') {
+            showFamilies();
+        } else if (currentView === 'categories') {
+            showCategories();
+        } else if (currentView === 'products') {
+            showProducts();
+        }
+    }
+
+    function updateDailyStats() {
+        const today = new Date().toLocaleDateString('fr-FR');
+        const todaySales = salesHistory.filter(sale => {
+            const saleDate = new Date(sale.timestamp).toLocaleDateString('fr-FR');
+            return saleDate === today;
+        });
+
+        const dailyTotal = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+        
+        document.getElementById('dailySalesCount').textContent = todaySales.length;
+        document.getElementById('dailyTotal').textContent = dailyTotal.toFixed(2) + ' €';
+    }
+
+    function updateTicketDate() {
+        const now = new Date();
+        const options = { 
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        document.getElementById('ticketDate').textContent = now.toLocaleTimeString('fr-FR', options);
+    }
+
+    function goHome() {
+        currentView = 'families';
+        currentFamily = null;
+        currentCategory = null;
+        updateBreadcrumb();
+        showFamilies();
+    }
+
+    function getOrderKey() {
+        if (currentView === 'families') return 'families';
+        if (currentView === 'categories') return `categories_${currentFamily}`;
+        if (currentView === 'products') return `products_${currentFamily}_${currentCategory}`;
+        return '';
+    }
+
+    function getOrderedItems(items) {
+        const orderKey = getOrderKey();
+        if (!customOrder[orderKey]) {
+            return items;
+        }
+        
+        const ordered = [];
+        const itemMap = {};
+        
+        items.forEach(item => {
+            const key = typeof item === 'string' ? item : item.nom;
+            itemMap[key] = item;
+        });
+        
+        customOrder[orderKey].forEach(key => {
+            if (itemMap[key]) {
+                ordered.push(itemMap[key]);
+                delete itemMap[key];
+            }
+        });
+        
+        Object.values(itemMap).forEach(item => ordered.push(item));
+        
+        return ordered;
+    }
+
+    function showFamilies() {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = '';
+
+        const families = Object.keys(productsData);
+        const orderedFamilies = getOrderedItems(families);
+
+        orderedFamilies.forEach((family, index) => {
+            const categories = productsData[family];
+            let totalProducts = 0;
+            Object.values(categories).forEach(products => {
+                totalProducts += products.length;
+            });
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            if (editMode) card.classList.add('edit-mode');
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.draggable = editMode;
+            card.dataset.item = family;
+            
+            card.innerHTML = `
+                <div class="card-title">${family}</div>
+                <div class="card-count">${totalProducts} produits</div>
+            `;
+            
+            if (!editMode) {
+                card.onclick = () => selectFamily(family);
+            } else {
+                setupDragAndDrop(card);
+            }
+            
+            grid.appendChild(card);
+        });
+    }
+
+    function selectFamily(family) {
+        if (editMode) return;
+        currentFamily = family;
+        currentView = 'categories';
+        updateBreadcrumb();
+        showCategories();
+    }
+
+    function showCategories() {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = '';
+
+        const categories = Object.keys(productsData[currentFamily]);
+        const orderedCategories = getOrderedItems(categories);
+
+        orderedCategories.forEach((category, index) => {
+            const products = productsData[currentFamily][category];
+            const card = document.createElement('div');
+            card.className = 'card';
+            if (editMode) card.classList.add('edit-mode');
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.draggable = editMode;
+            card.dataset.item = category;
+            
+            card.innerHTML = `
+                <div class="card-title">${category}</div>
+                <div class="card-count">${products.length} produits</div>
+            `;
+            
+            if (!editMode) {
+                card.onclick = () => selectCategory(category);
+            } else {
+                setupDragAndDrop(card);
+            }
+            
+            grid.appendChild(card);
+        });
+    }
+
+    function selectCategory(category) {
+        if (editMode) return;
+        currentCategory = category;
+        currentView = 'products';
+        updateBreadcrumb();
+        showProducts();
+    }
+
+    function showProducts() {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = '';
+
+        const products = productsData[currentFamily][currentCategory];
+        const orderedProducts = getOrderedItems(products);
+
+        orderedProducts.forEach((product, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            if (editMode) card.classList.add('edit-mode');
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.draggable = editMode;
+            card.dataset.item = product.nom;
+            
+            card.innerHTML = `
+                <div class="card-title">${product.nom}</div>
+                <div class="card-price">${product.prix.toFixed(2)} €</div>
+                <div class="card-count">TVA ${product.taxe}%</div>
+            `;
+            
+            if (!editMode) {
+                card.onclick = () => addToCart(product);
+            } else {
+                setupDragAndDrop(card);
+            }
+            
+            grid.appendChild(card);
+        });
+    }
+
+    function setupDragAndDrop(card) {
+        card.addEventListener('dragstart', function(e) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+            this.classList.add('dragging');
+        });
+
+        card.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+        });
+
+        card.addEventListener('dragover', function(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+            return false;
+        });
+
+        card.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', function(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            const dragging = document.querySelector('.dragging');
+            if (dragging && dragging !== this) {
+                const allCards = Array.from(document.querySelectorAll('.card'));
+                const dragIndex = allCards.indexOf(dragging);
+                const dropIndex = allCards.indexOf(this);
+
+                if (dragIndex < dropIndex) {
+                    this.parentNode.insertBefore(dragging, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(dragging, this);
+                }
+
+                saveNewOrder();
+            }
+
+            this.classList.remove('drag-over');
+            return false;
+        });
+    }
+
+    function saveNewOrder() {
+        const cards = document.querySelectorAll('.card');
+        const newOrder = Array.from(cards).map(card => card.dataset.item);
+        const orderKey = getOrderKey();
+        customOrder[orderKey] = newOrder;
+        saveCustomOrder();
+    }
+
+    function updateBreadcrumb() {
+        const breadcrumb = document.getElementById('breadcrumb');
+        breadcrumb.innerHTML = '<button onclick="goHome()">🏠 Accueil</button>';
+
+        if (currentFamily) {
+            breadcrumb.innerHTML += `<span>›</span><button onclick="selectFamily('${currentFamily}')">${currentFamily}</button>`;
+        }
+
+        if (currentCategory) {
+            breadcrumb.innerHTML += `<span>›</span><span>${currentCategory}</span>`;
+        }
+    }
+
+    function addToCart(product) {
+        if (editMode) return;
+        const existingItem = cart.find(item => item.nom === product.nom);
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+        updateTicket();
+    }
+
+    function updateQuantity(productName, change) {
+        const item = cart.find(item => item.nom === productName);
+        if (item) {
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                cart = cart.filter(item => item.nom !== productName);
+            }
+            updateTicket();
+        }
+    }
+
+    function updateTicket() {
+        const ticketItems = document.getElementById('ticketItems');
+        const paymentSection = document.getElementById('paymentSection');
+        const cardPaymentBtn = document.getElementById('cardPaymentBtn');
+
+        if (cart.length === 0) {
+            ticketItems.innerHTML = '<div class="empty-cart">Panier vide</div>';
+            paymentSection.style.display = 'none';
+            cardPaymentBtn.style.display = 'none';
+        } else {
+            ticketItems.innerHTML = cart.map(item => {
+                const totalPrice = item.prix * item.quantity;
+                return `
+                    <div class="ticket-item">
+                        <div class="ticket-item-info">
+                            <div class="ticket-item-name">${item.nom}</div>
+                            <div class="ticket-item-details">${item.prix.toFixed(2)} € × ${item.quantity}</div>
+                        </div>
+                        <div class="ticket-item-controls">
+                            <button class="qty-btn" onclick="updateQuantity('${item.nom.replace(/'/g, "\'")}', -1)">−</button>
+                            <span class="ticket-item-qty">${item.quantity}</span>
+                            <button class="qty-btn" onclick="updateQuantity('${item.nom.replace(/'/g, "\'")}', 1)">+</button>
+                            <span class="ticket-item-price">${totalPrice.toFixed(2)} €</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            paymentSection.style.display = 'block';
+            cardPaymentBtn.style.display = 'flex';
+        }
+
+        updateSummary();
+        calculateChange();
+    }
+
+    function updateSummary() {
+        let subtotal = 0;
+        let totalTax = 0;
+
+        cart.forEach(item => {
+            const itemTotal = item.prix * item.quantity;
+            subtotal += itemTotal;
+            totalTax += (itemTotal * item.taxe) / (100 + item.taxe);
+        });
+
+        const subtotalHT = subtotal - totalTax;
+        currentTotal = subtotal;
+
+        document.getElementById('subtotalHT').textContent = subtotalHT.toFixed(2) + ' €';
+        document.getElementById('taxAmount').textContent = totalTax.toFixed(2) + ' €';
+        document.getElementById('totalTTC').textContent = subtotal.toFixed(2) + ' €';
+    }
+
+    function setQuickAmount(amount) {
+        document.getElementById('paymentInput').value = amount.toFixed(2);
+        calculateChange();
+    }
+
+    function setExactAmount() {
+        document.getElementById('paymentInput').value = currentTotal.toFixed(2);
+        calculateChange();
+    }
+
+    function calculateChange() {
+        const paymentInput = document.getElementById('paymentInput');
+        const changeDisplay = document.getElementById('changeDisplay');
+        const paymentAmount = parseFloat(paymentInput.value) || 0;
+
+        if (paymentAmount > 0 && cart.length > 0) {
+            const change = paymentAmount - currentTotal;
+            changeDisplay.style.display = 'block';
+            
+            if (change >= 0) {
+                changeDisplay.className = 'change-display';
+                changeDisplay.innerHTML = `
+                    <div class="change-label">À rendre</div>
+                    <div class="change-amount">${change.toFixed(2)} €</div>
+                `;
+            } else {
+                changeDisplay.className = 'change-display negative';
+                changeDisplay.innerHTML = `
+                    <div class="change-label">Manquant</div>
+                    <div class="change-amount">${Math.abs(change).toFixed(2)} €</div>
+                `;
+            }
+        } else {
+            changeDisplay.style.display = 'none';
+        }
+    }
+
+    function processCardPayment() {
+        if (cart.length === 0) {
+            alert('Le panier est vide !');
+            return;
+        }
+
+        const btn = document.getElementById('cardPaymentBtn');
+        btn.classList.add('processing');
+        btn.innerHTML = '⏳ Traitement...';
+
+        setTimeout(() => {
+            const sale = {
+                timestamp: new Date().toISOString(),
+                items: cart.map(item => ({
+                    nom: item.nom,
+                    prix: item.prix,
+                    quantity: item.quantity,
+                    taxe: item.taxe
+                })),
+                total: currentTotal,
+                payment: currentTotal,
+                change: 0,
+                paymentMethod: 'card'
+            };
+
+            salesHistory.unshift(sale);
+            saveSalesHistory();
+
+            btn.classList.remove('processing');
+            btn.classList.add('success');
+            btn.innerHTML = '✓ Accepté';
+
+            setTimeout(() => {
+                alert(`✅ Paiement carte accepté !\n\nTotal : ${currentTotal.toFixed(2)} €\n\nMerci !`);
+                
+                cart = [];
+                document.getElementById('paymentInput').value = '';
+                updateTicket();
+                
+                btn.classList.remove('success');
+                btn.innerHTML = '💳 Carte';
+            }, 1000);
+        }, 1500);
+    }
+
+    function clearCart() {
+        if (cart.length > 0 && confirm('Vider le panier ?')) {
+            cart = [];
+            document.getElementById('paymentInput').value = '';
+            updateTicket();
+        }
+    }
+
+    function validateOrder() {
+        if (cart.length === 0) {
+            alert('Le panier est vide !');
+            return;
+        }
+
+        const paymentAmount = parseFloat(document.getElementById('paymentInput').value) || 0;
+        const change = paymentAmount - currentTotal;
+
+        const sale = {
+            timestamp: new Date().toISOString(),
+            items: cart.map(item => ({
+                nom: item.nom,
+                prix: item.prix,
+                quantity: item.quantity,
+                taxe: item.taxe
+            })),
+            total: currentTotal,
+            payment: paymentAmount,
+            change: change >= 0 ? change : 0,
+            paymentMethod: 'cash'
+        };
+
+        salesHistory.unshift(sale);
+        saveSalesHistory();
+
+        let message = `✅ Vente enregistrée !\n\nTotal : ${currentTotal.toFixed(2)} €`;
+        
+        if (paymentAmount > 0) {
+            message += `\nReçu : ${paymentAmount.toFixed(2)} €`;
+            if (change >= 0) {
+                message += `\nÀ rendre : ${change.toFixed(2)} €`;
+            } else {
+                message += `\n⚠️ Manquant : ${Math.abs(change).toFixed(2)} €`;
+            }
+        }
+        
+        message += '\n\nMerci !';
+        
+        const btn = document.querySelector('.btn-validate');
+        btn.classList.add('success');
+        setTimeout(() => btn.classList.remove('success'), 500);
+
+        alert(message);
+        
+        cart = [];
+        document.getElementById('paymentInput').value = '';
+        updateTicket();
+    }
+
+    function openHistory() {
+        document.getElementById('historyModal').classList.add('active');
+        displayHistory();
+    }
+
+    function closeHistory() {
+        document.getElementById('historyModal').classList.remove('active');
+    }
+
+    function displayHistory() {
+        const historyList = document.getElementById('historyList');
+        
+        if (salesHistory.length === 0) {
+            historyList.innerHTML = `
+                <div class="no-sales">
+                    <div class="no-sales-icon">📭</div>
+                    <p>Aucune vente enregistrée</p>
+                </div>
+            `;
+        } else {
+            historyList.innerHTML = salesHistory.map(sale => {
+                const date = new Date(sale.timestamp);
+                const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                const dateStr = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                
+                const productsSummary = sale.items.map(item => 
+                    `${item.quantity}× ${item.nom}`
+                ).join(', ');
+
+                const paymentBadge = sale.paymentMethod === 'card' 
+                    ? '<span class="payment-method-badge card">💳 Carte</span>'
+                    : '<span class="payment-method-badge cash">💶 Espèces</span>';
+
+                return `
+                    <div class="history-item">
+                        <div class="history-item-header">
+                            <span class="history-item-time">${timeStr} - ${dateStr}</span>
+                            <span class="history-item-total">${sale.total.toFixed(2)} €</span>
+                        </div>
+                        <div class="history-item-products">${productsSummary}</div>
+                        <div class="history-item-payment">
+                            ${paymentBadge}
+                            ${sale.paymentMethod === 'cash' ? `<span>Reçu: ${sale.payment.toFixed(2)} €</span>` : ''}
+                            ${sale.paymentMethod === 'cash' ? `<span>Rendu: ${sale.change.toFixed(2)} €</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const totalRevenue = salesHistory.reduce((sum, sale) => sum + sale.total, 0);
+        const averageBasket = salesHistory.length > 0 ? totalRevenue / salesHistory.length : 0;
+
+        document.getElementById('totalSalesCount').textContent = salesHistory.length;
+        document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(0) + ' €';
+        document.getElementById('averageBasket').textContent = averageBasket.toFixed(2) + ' €';
+    }
+
+    function clearHistory() {
+        if (confirm('⚠️ Effacer tout l\'historique ?')) {
+            salesHistory = [];
+            saveSalesHistory();
+            displayHistory();
+        }
+    }
+
+    document.getElementById('historyModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeHistory();
+        }
+    });
+
+    init();
+</script>
+
+</body>
+</html>
