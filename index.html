@@ -1279,7 +1279,125 @@
             max-height: 90vh;
         }
     }
+
+    /* Saisie libre DIVERS */
+    .divers-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.65);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+    .divers-modal.active { display: flex; }
+    .divers-box {
+        width: min(92vw, 380px);
+        background: white;
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .divers-box h2 {
+        font-family: 'Playfair Display', serif;
+        color: var(--deep-brown);
+        margin-bottom: 14px;
+        text-align: center;
+    }
+    .divers-price-input {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid var(--crust);
+        border-radius: 10px;
+        font: 700 1.5rem 'Karla', sans-serif;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    .divers-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .divers-actions button {
+        padding: 12px;
+        border: none;
+        border-radius: 9px;
+        font: 700 .95rem 'Karla', sans-serif;
+        cursor: pointer;
+    }
+    .divers-cancel { background: #e0e0e0; color: var(--deep-brown); }
+    .divers-confirm { background: var(--accent); color: white; }
+
+
+    /* FACTURE A4 */
+    .invoice-modal {
+        display:none; position:fixed; inset:0; z-index:2500;
+        background:rgba(0,0,0,.68); align-items:center; justify-content:center;
+    }
+    .invoice-modal.active { display:flex; }
+    .invoice-box {
+        width:min(94vw,520px); background:#fff; border-radius:18px;
+        padding:22px; box-shadow:0 20px 60px rgba(0,0,0,.3);
+    }
+    .invoice-box h2 { font-family:'Playfair Display',serif; color:var(--deep-brown); margin-bottom:14px; }
+    .invoice-field { margin-bottom:10px; }
+    .invoice-field label { display:block; font-weight:700; color:var(--warm-brown); margin-bottom:4px; }
+    .invoice-field input, .invoice-field textarea {
+        width:100%; padding:10px; border:2px solid var(--crust); border-radius:8px;
+        font-family:'Karla',sans-serif; font-size:.95rem;
+    }
+    .invoice-field textarea { min-height:70px; resize:vertical; }
+    .invoice-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .invoice-actions button { padding:12px; border:0; border-radius:9px; font-weight:700; cursor:pointer; }
+    .invoice-cancel { background:#e0e0e0; color:var(--deep-brown); }
+    .invoice-confirm { background:var(--accent); color:white; }
+
+
+    @media print {
+        body > * { display: none !important; }
+        #invoicePreviewOverlay {
+            display: block !important;
+            position: static !important;
+            background: white !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+        #invoicePreviewOverlay > div:first-child { display:none !important; }
+        #invoicePreviewA4 {
+            display:block !important;
+            width:210mm !important;
+            min-height:297mm !important;
+            margin:0 !important;
+            padding:15mm !important;
+            box-shadow:none !important;
+        }
+        @page { size:A4; margin:0; }
+    }
+
+
+    /* FICHIER CLIENTS */
+    .clients-modal{display:none;position:fixed;inset:0;z-index:2800;background:rgba(0,0,0,.68);align-items:center;justify-content:center}
+    .clients-modal.active{display:flex}
+    .clients-box{width:min(95vw,760px);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px}
+    .clients-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+    .clients-toolbar input{flex:1;min-width:200px;padding:10px;border:2px solid var(--crust);border-radius:8px}
+    .client-card{border:1px solid #ddd;border-radius:10px;padding:12px;margin:8px 0;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .client-card-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .client-card button,.clients-toolbar button{border:0;border-radius:7px;padding:8px 10px;cursor:pointer;font-weight:700}
+    .client-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .client-form-grid .full{grid-column:1/-1}
+    @media(max-width:600px){.client-form-grid{grid-template-columns:1fr}}
+
 </style>
+
+
+    <!-- Mode application iPad / PWA -->
+    <meta name="theme-color" content="#8B6F47">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Caisse Boulangerie">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icon-180.png">
 
 </head>
 <body>
@@ -1292,6 +1410,14 @@
                 </div>
                 <div class="header-right">
                     <div class="header-buttons">
+                        <button class="stats-btn" onclick="openClientsModal()" style="background:#4169a1;">
+                            👥 Clients
+                        </button>
+
+                        <button class="stats-btn" onclick="openDiversModal()" style="background:#27ae60;">
+                            ➕ Divers
+                        </button>
+
                         <button class="edit-btn" id="editBtn" onclick="toggleEditMode()">
                             ✏️ Éditer
                         </button>
@@ -1325,7 +1451,19 @@
     </div>
 
     <div class="ticket-section">
-        <div class="ticket-header">
+        
+            <div id="currentCustomerBar" style="margin-bottom:12px;padding:12px;border:2px solid #4169a1;border-radius:10px;background:#f5f8fc;">
+                <div style="font-weight:700;margin-bottom:7px;">👤 Client de la vente</div>
+                <div style="display:flex;gap:7px;align-items:center;">
+                    <select id="saleClientSelect" onchange="selectSaleClient()" style="flex:1;padding:9px;border:1px solid #bbb;border-radius:7px;">
+                        <option value="">Comptoir / aucun client</option>
+                    </select>
+                    <button onclick="openClientsModal()" style="padding:9px;border:0;border-radius:7px;background:#4169a1;color:white;cursor:pointer;">👥</button>
+                </div>
+                <div id="selectedSaleClientName" style="font-size:.85rem;margin-top:6px;color:#555;">Vente comptoir</div>
+            </div>
+
+<div class="ticket-header">
             <h2>Ticket</h2>
             <p id="ticketDate"></p>
         </div>
@@ -1352,7 +1490,14 @@
                 💳 Carte
             </button>
 
-            <div class="payment-section" id="paymentSection" style="display: none;">
+            <div id="discountSection" style="display:none;margin:12px 0;">
+    <button type="button" onclick="setDiscount()" style="width:100%;padding:14px;border:0;border-radius:9px;background:#d08a22;color:white;font-weight:700;font-size:1rem;cursor:pointer;">
+        🏷️ RÉDUCTION SUR LE TOTAL
+    </button>
+    <div id="discountInfo" style="display:none;margin-top:7px;padding:8px;border-radius:7px;background:#fff3df;text-align:center;font-weight:700;"></div>
+</div>
+
+<div class="payment-section" id="paymentSection" style="display: none;">
                 <label for="paymentInput">💶 Espèces</label>
                 <div class="payment-input-container">
                     <input 
@@ -1383,6 +1528,11 @@
                 <button class="btn btn-clear" onclick="clearCart()">Annuler</button>
                 <button class="btn btn-validate" id="validateBtn" onclick="validateOrder()">Espèces</button>
             </div>
+            <button id="lastInvoiceBtn" onclick="openInvoiceModal()"
+                style="display:none;width:100%;margin-top:12px;padding:15px;border:0;border-radius:10px;
+                background:#2f7d32;color:white;font-weight:700;font-size:1rem;cursor:pointer;">
+                🧾 FACTURE — DERNIÈRE VENTE
+            </button>
         </div>
     </div>
 </div>
@@ -1413,6 +1563,99 @@
         <div class="modal-footer">
             <button class="clear-history-btn" onclick="clearHistory()">🗑️ Effacer</button>
             <span style="color: var(--warm-brown); font-size: 0.85rem;">Sauvegardé localement</span>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<div id="discountModal" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;">
+  <div style="width:min(92vw,360px);background:white;border-radius:16px;padding:20px;text-align:center;">
+    <h2 style="margin:0 0 14px;">🏷️ Réduction</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+      <button type="button" onclick="applyDiscount(5)" style="padding:13px;">5 %</button>
+      <button type="button" onclick="applyDiscount(10)" style="padding:13px;">10 %</button>
+      <button type="button" onclick="applyDiscount(15)" style="padding:13px;">15 %</button>
+    </div>
+    <input id="customDiscountInput" type="number" min="0" max="100" step="0.01" inputmode="decimal"
+      placeholder="Autre pourcentage"
+      style="width:100%;padding:12px;font-size:1.1rem;text-align:center;border:2px solid #d08a22;border-radius:8px;margin-bottom:10px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button type="button" onclick="closeDiscountModal()" style="padding:12px;">Annuler</button>
+      <button type="button" onclick="applyCustomDiscount()" style="padding:12px;background:#d08a22;color:white;border:0;border-radius:7px;font-weight:700;">Appliquer</button>
+    </div>
+    <button type="button" onclick="applyDiscount(0)" style="width:100%;margin-top:8px;padding:10px;border:0;border-radius:7px;">Supprimer la réduction</button>
+  </div>
+</div>
+
+<div class="clients-modal" id="clientsModal" onclick="if(event.target===this) closeClientsModal()">
+  <div class="clients-box">
+    <h2>👥 Fichier clients</h2>
+    <div class="clients-toolbar">
+      <input id="clientSearch" type="text" placeholder="Rechercher un client..." oninput="renderClients()">
+      <button onclick="newClient()" style="background:#2f7d32;color:white">＋ Nouveau client</button>
+      <button onclick="closeClientsModal()">Fermer</button>
+    </div>
+    <div id="clientForm" style="display:none;border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:14px">
+      <input type="hidden" id="clientId">
+      <div class="client-form-grid">
+        <div><label>Nom / Société</label><input id="clientName" style="width:100%;padding:9px"></div>
+        <div><label>Téléphone</label><input id="clientPhone" style="width:100%;padding:9px"></div>
+        <div><label>E-mail</label><input id="clientEmail" type="email" style="width:100%;padding:9px"></div>
+        <div class="full"><label>Adresse</label><textarea id="clientAddress" style="width:100%;min-height:65px;padding:9px"></textarea></div>
+        <div class="full"><label>Remarque</label><textarea id="clientNote" style="width:100%;min-height:55px;padding:9px"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button onclick="cancelClientEdit()">Annuler</button>
+        <button onclick="saveClient()" style="background:#2f7d32;color:white">💾 Enregistrer</button>
+      </div>
+    </div>
+    <div id="clientsList"></div>
+  </div>
+</div>
+
+<div id="invoicePreviewOverlay" style="display:none;position:fixed;inset:0;z-index:3000;background:#777;overflow:auto;padding:20px;">
+  <div style="max-width:210mm;margin:0 auto 15px;display:flex;gap:10px;justify-content:flex-end;">
+    <button onclick="closeInvoicePreview()" style="padding:10px 16px;border:0;border-radius:7px;cursor:pointer;">Fermer</button>
+    <button onclick="showInvoicePDF()" style="padding:10px 16px;border:0;border-radius:7px;background:#2f7d32;color:#fff;font-weight:700;cursor:pointer;">📄 Afficher le PDF</button>
+  </div>
+  <div id="invoicePreviewA4" style="width:210mm;min-height:297mm;margin:0 auto;background:#fff;padding:15mm;box-sizing:border-box;font-family:Arial,sans-serif;color:#222;font-size:12px;"></div>
+  <div id="invoicePdfPanel" style="display:none;max-width:210mm;height:75vh;margin:15px auto;background:white;">
+    <iframe id="invoicePdfFrame" title="Facture PDF" style="width:100%;height:100%;border:0;background:white;"></iframe>
+  </div>
+</div>
+
+<div class="invoice-modal" id="invoiceModal" onclick="if(event.target===this) closeInvoiceModal()">
+  <div class="invoice-box">
+    <h2>🧾 Créer une facture A4</h2>
+    <div class="invoice-field">
+      <label>Client enregistré</label>
+      <select id="invoiceClientSelect" onchange="fillInvoiceFromClient()" style="width:100%;padding:10px;border:2px solid var(--crust);border-radius:8px">
+        <option value="">— Nouveau / aucun client —</option>
+      </select>
+    </div>
+    <div class="invoice-field"><label>Nom / Société du client</label><input id="invoiceClientName" type="text" placeholder="Nom du client"></div>
+    <div class="invoice-field"><label>Adresse</label><textarea id="invoiceClientAddress" placeholder="Adresse complète"></textarea></div>
+    <div class="invoice-field"><label>E-mail (facultatif)</label><input id="invoiceClientEmail" type="email" placeholder="client@exemple.fr"></div>
+    <div class="invoice-actions">
+      <button class="invoice-cancel" onclick="closeInvoiceModal()">Annuler</button>
+      <button class="invoice-confirm" onclick="printInvoiceA4()">Créer / PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="divers-modal" id="diversModal" onclick="if(event.target===this) closeDiversModal()">
+    <div class="divers-box">
+        <h2>➕ Divers</h2>
+        <input id="diversPriceInput" class="divers-price-input" type="text"
+               inputmode="decimal" placeholder="0,00 €"
+               onkeydown="if(event.key==='Enter') addDiversToCart(); if(event.key==='Escape') closeDiversModal();">
+        <div class="divers-actions">
+            <button class="divers-cancel" onclick="closeDiversModal()">Annuler</button>
+            <button class="divers-confirm" onclick="addDiversToCart()">Ajouter au ticket</button>
         </div>
     </div>
 </div>
@@ -1459,7 +1702,7 @@
                     },
                     {
                             "nom": "Chinois chocolat",
-                            "prix": 5.6,
+                            "prix": 5.80,
                             "taxe": 5.5
                     },
                     {
@@ -1479,7 +1722,7 @@
                     },
                     {
                             "nom": "Marbre",
-                            "prix": 6.0,
+                            "prix": 6.20,
                             "taxe": 5.5
                     },
                     {
@@ -1494,17 +1737,17 @@
                     },
                     {
                             "nom": "Brioche nature",
-                            "prix": 4.8,
+                            "prix": 4.90,
                             "taxe": 5.5
                     },
                     {
                             "nom": "Brioche raisin",
-                            "prix": 5.05,
+                            "prix": 5.15,
                             "taxe": 5.5
                     },
                     {
                             "nom": "Brioche chocolat",
-                            "prix": 5.15,
+                            "prix": 5.25,
                             "taxe": 5.5
                     },
                     {
@@ -1585,7 +1828,7 @@
                     },
                     {
                             "nom": "Petit cookie",
-                            "prix": 1.0,
+                            "prix": 1.10,
                             "taxe": 5.5
                     },
                     {
@@ -2098,7 +2341,7 @@
                     },
                     {
                             "nom": "Eclair vanille",
-                            "prix": 2.6,
+                            "prix": 2.70,
                             "taxe": 5.5
                     },
                     {
@@ -2108,7 +2351,7 @@
                     },
                     {
                             "nom": "Eclair cafe",
-                            "prix": 2.6,
+                            "prix": 2.70,
                             "taxe": 5.5
                     },
                     {
@@ -2118,7 +2361,7 @@
                     },
                     {
                             "nom": "Eclair chocolat",
-                            "prix": 2.6,
+                            "prix": 2.70,
                             "taxe": 5.5
                     },
                     {
@@ -2128,7 +2371,7 @@
                     },
                     {
                             "nom": "Eclair pistache",
-                            "prix": 2.6,
+                            "prix": 2.70,
                             "taxe": 5.5
                     },
                     {
@@ -2138,7 +2381,7 @@
                     },
                     {
                             "nom": "Eclair choco blanc",
-                            "prix": 2.6,
+                            "prix": 2.70,
                             "taxe": 5.5
                     },
                     {
@@ -2148,7 +2391,7 @@
                     },
                     {
                             "nom": "Eclair framboises",
-                            "prix": 2.7,
+                            "prix": 2.70,
                             "taxe": 5.5
                     },
                     {
@@ -2366,7 +2609,17 @@
                     },
                     {
                             "nom": "Quiche lorraine",
-                            "prix": 3.5,
+                            "prix": 3.65,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Quiche fromage",
+                            "prix": 3.65,
+                            "taxe": 5.5
+                    },
+                    {
+                            "nom": "Quiche légumes",
+                            "prix": 3.65,
                             "taxe": 5.5
                     },
                     {
@@ -2651,11 +2904,13 @@
     let currentCategory = null;
     let cart = [];
     let currentTotal = 0;
+    let currentDiscountPercent = 0;
     let salesHistory = [];
     let editMode = false;
     let customOrder = {};
 
     function init() {
+        setTimeout(refreshSaleClientSelect, 0);
         loadSalesHistory();
         loadCustomOrder();
         updateTicketDate();
@@ -2991,11 +3246,13 @@
         const ticketItems = document.getElementById('ticketItems');
         const paymentSection = document.getElementById('paymentSection');
         const cardPaymentBtn = document.getElementById('cardPaymentBtn');
+        const discountSection = document.getElementById('discountSection');
 
         if (cart.length === 0) {
             ticketItems.innerHTML = '<div class="empty-cart">Panier vide</div>';
             paymentSection.style.display = 'none';
             cardPaymentBtn.style.display = 'none';
+            discountSection.style.display = 'none';
         } else {
             ticketItems.innerHTML = cart.map(item => {
                 const totalPrice = item.prix * item.quantity;
@@ -3017,6 +3274,7 @@
             
             paymentSection.style.display = 'block';
             cardPaymentBtn.style.display = 'flex';
+            discountSection.style.display = 'block';
         }
 
         updateSummary();
@@ -3024,21 +3282,71 @@
     }
 
     function updateSummary() {
-        let subtotal = 0;
-        let totalTax = 0;
+        let grossTTC = 0;
+        let grossTax = 0;
 
         cart.forEach(item => {
             const itemTotal = item.prix * item.quantity;
-            subtotal += itemTotal;
-            totalTax += (itemTotal * item.taxe) / (100 + item.taxe);
+            grossTTC += itemTotal;
+            grossTax += (itemTotal * item.taxe) / (100 + item.taxe);
         });
 
+        const factor = 1 - (currentDiscountPercent / 100);
+        const subtotal = grossTTC * factor;
+        const totalTax = grossTax * factor;
         const subtotalHT = subtotal - totalTax;
-        currentTotal = subtotal;
+        currentTotal = Math.round(subtotal * 100) / 100;
 
         document.getElementById('subtotalHT').textContent = subtotalHT.toFixed(2) + ' €';
         document.getElementById('taxAmount').textContent = totalTax.toFixed(2) + ' €';
-        document.getElementById('totalTTC').textContent = subtotal.toFixed(2) + ' €';
+        document.getElementById('totalTTC').textContent = currentTotal.toFixed(2) + ' €';
+
+        const info = document.getElementById('discountInfo');
+        if (currentDiscountPercent > 0 && grossTTC > 0) {
+            const saved = grossTTC - currentTotal;
+            info.style.display = 'block';
+            info.innerHTML = `Réduction ${currentDiscountPercent.toFixed(2).replace('.00','').replace('.',',')} % : − ${saved.toFixed(2)} €`;
+        } else {
+            info.style.display = 'none';
+            info.textContent = '';
+        }
+    }
+
+    function setDiscount() {
+        if (cart.length === 0) {
+            alert('Le panier est vide !');
+            return;
+        }
+        const input = document.getElementById('customDiscountInput');
+        input.value = currentDiscountPercent > 0 ? currentDiscountPercent : '';
+        document.getElementById('discountModal').style.display = 'flex';
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeDiscountModal() {
+        document.getElementById('discountModal').style.display = 'none';
+    }
+
+    function applyDiscount(value) {
+        value = Number(value);
+        if (!Number.isFinite(value) || value < 0 || value > 100) {
+            alert('Entre un pourcentage entre 0 et 100.');
+            return;
+        }
+        currentDiscountPercent = Math.round(value * 100) / 100;
+        closeDiscountModal();
+        updateSummary();
+        calculateChange();
+    }
+
+    function applyCustomDiscount() {
+        const raw = document.getElementById('customDiscountInput').value;
+        const value = parseFloat(String(raw).replace(',', '.'));
+        if (!Number.isFinite(value) || value < 0 || value > 100) {
+            alert('Entre un pourcentage entre 0 et 100.');
+            return;
+        }
+        applyDiscount(value);
     }
 
     function setQuickAmount(amount) {
@@ -3098,13 +3406,16 @@
                     taxe: item.taxe
                 })),
                 total: currentTotal,
+                discountPercent: currentDiscountPercent,
                 payment: currentTotal,
                 change: 0,
-                paymentMethod: 'card'
+                paymentMethod: 'card',
+                client: getCurrentSaleClient() ? JSON.parse(JSON.stringify(getCurrentSaleClient())) : null
             };
 
             salesHistory.unshift(sale);
             saveSalesHistory();
+            rememberSaleForInvoice(sale);
 
             btn.classList.remove('processing');
             btn.classList.add('success');
@@ -3126,6 +3437,7 @@
     function clearCart() {
         if (cart.length > 0 && confirm('Vider le panier ?')) {
             cart = [];
+            currentDiscountPercent = 0;
             document.getElementById('paymentInput').value = '';
             updateTicket();
         }
@@ -3149,13 +3461,16 @@
                 taxe: item.taxe
             })),
             total: currentTotal,
+            discountPercent: currentDiscountPercent,
             payment: paymentAmount,
             change: change >= 0 ? change : 0,
-            paymentMethod: 'cash'
+            paymentMethod: 'cash',
+            client: getCurrentSaleClient() ? JSON.parse(JSON.stringify(getCurrentSaleClient())) : null
         };
 
         salesHistory.unshift(sale);
         saveSalesHistory();
+        rememberSaleForInvoice(sale);
 
         let message = `✅ Vente enregistrée !\n\nTotal : ${currentTotal.toFixed(2)} €`;
         
@@ -3177,6 +3492,7 @@
         alert(message);
         
         cart = [];
+        currentDiscountPercent = 0;
         document.getElementById('paymentInput').value = '';
         updateTicket();
     }
@@ -3218,7 +3534,7 @@
                     <div class="history-item">
                         <div class="history-item-header">
                             <span class="history-item-time">${timeStr} - ${dateStr}</span>
-                            <span class="history-item-total">${sale.total.toFixed(2)} €</span>
+                            <span class="history-item-total">${Number(sale.total).toFixed(2)} €</span>
                         </div>
                         <div class="history-item-products">${productsSummary}</div>
                         <div class="history-item-payment">
@@ -3254,6 +3570,424 @@
     });
 
     init();
+
+    function openDiversModal() {
+        const modal = document.getElementById('diversModal');
+        const input = document.getElementById('diversPriceInput');
+        input.value = '';
+        modal.classList.add('active');
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeDiversModal() {
+        document.getElementById('diversModal').classList.remove('active');
+    }
+
+    function addDiversToCart() {
+        const input = document.getElementById('diversPriceInput');
+        const price = parseFloat((input.value || '').replace(',', '.'));
+        if (!Number.isFinite(price) || price <= 0) {
+            alert('Entre un prix valide.');
+            input.focus();
+            return;
+        }
+
+        // TVA alimentaire 5,5 %, comme les autres produits de la caisse.
+        const product = { nom: 'Divers', prix: Math.round(price * 100) / 100, taxe: 5.5 };
+
+        // Réutilise la fonction normale de la caisse afin de conserver
+        // le calcul TVA, les quantités, le ticket et les statistiques.
+        if (typeof addToCart === 'function') {
+            addToCart(product);
+        } else {
+            // Compatibilité si cette version n'expose pas addToCart.
+            const existing = cart.find(item => item.nom === product.nom && item.prix === product.prix && item.taxe === product.taxe);
+            if (existing) existing.quantite++;
+            else cart.push({ ...product, quantite: 1 });
+            updateTicket();
+        }
+        closeDiversModal();
+    }
+
+
+    let lastSaleForInvoice = null;
+    let currentInvoicePDFData = null;
+
+    function rememberSaleForInvoice(sale) {
+        lastSaleForInvoice = JSON.parse(JSON.stringify(sale));
+        const invoiceBtn = document.getElementById('lastInvoiceBtn');
+        if (invoiceBtn) {
+            invoiceBtn.style.display = 'block';
+            invoiceBtn.textContent = `🧾 FACTURE — DERNIÈRE VENTE (${Number(sale.total).toFixed(2)} €)`;
+        }
+    }
+
+    function openInvoiceModal() {
+        if (!lastSaleForInvoice) {
+            alert("Aucune vente récente à facturer.");
+            return;
+        }
+        refreshInvoiceClientSelect();
+        const saleClient = lastSaleForInvoice.client || getCurrentSaleClient();
+        if (saleClient) {
+            document.getElementById('invoiceClientSelect').value = saleClient.id || '';
+            document.getElementById('invoiceClientName').value = saleClient.name || '';
+            document.getElementById('invoiceClientAddress').value = saleClient.address || '';
+            document.getElementById('invoiceClientEmail').value = saleClient.email || '';
+        } else {
+            document.getElementById('invoiceClientSelect').value = '';
+            document.getElementById('invoiceClientName').value = '';
+            document.getElementById('invoiceClientAddress').value = '';
+            document.getElementById('invoiceClientEmail').value = '';
+        }
+        document.getElementById('invoiceModal').classList.add('active');
+        setTimeout(() => document.getElementById('invoiceClientName').focus(), 50);
+    }
+
+    function closeInvoiceModal() {
+        document.getElementById('invoiceModal').classList.remove('active');
+    }
+
+    function nextInvoiceNumber() {
+        const d = new Date();
+        const ymd = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+        const key = 'boulangerieInvoiceCounter_' + ymd;
+        const n = (parseInt(localStorage.getItem(key) || '0', 10) + 1);
+        localStorage.setItem(key, String(n));
+        return `${ymd}-${String(n).padStart(2,'0')}`;
+    }
+
+    function escHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    }
+
+    function closeInvoicePreview() {
+        document.getElementById('invoicePreviewOverlay').style.display = 'none';
+    }
+
+    function printInvoiceA4() {
+        if (!lastSaleForInvoice) return;
+        const clientName = document.getElementById('invoiceClientName').value.trim();
+        const clientAddress = document.getElementById('invoiceClientAddress').value.trim();
+        const clientEmail = document.getElementById('invoiceClientEmail').value.trim();
+        if (!clientName) {
+            alert('Entre au minimum le nom du client.');
+            return;
+        }
+
+        const sale = lastSaleForInvoice;
+        const invoiceNo = nextInvoiceNumber();
+        const date = new Date(sale.timestamp || Date.now());
+        const dateFr = date.toLocaleDateString('fr-FR');
+        currentInvoicePDFData = {
+            invoiceNo, dateFr, clientName, clientAddress, clientEmail,
+            sale: JSON.parse(JSON.stringify(sale))
+        };
+
+        let totalHT = 0, totalTVA = 0;
+        const rows = sale.items.map(item => {
+            const qty = Number(item.quantity || item.quantite || 1);
+            const ttc = Number(item.prix) * qty;
+            const rate = Number(item.taxe || 5.5);
+            const ht = ttc / (1 + rate / 100);
+            const tva = ttc - ht;
+            totalHT += ht;
+            totalTVA += tva;
+            return `<tr>
+              <td style="padding:8px;border-bottom:1px solid #ddd">${escHtml(item.nom)}</td>
+              <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right">${qty}</td>
+              <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right">${Number(item.prix).toFixed(2)} €</td>
+              <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right">${rate.toFixed(1)} %</td>
+              <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right">${ttc.toFixed(2)} €</td>
+            </tr>`;
+        }).join('');
+
+        const preview = document.getElementById('invoicePreviewA4');
+        preview.innerHTML = `
+          <div style="display:flex;justify-content:space-between;gap:30px;margin-bottom:28px">
+            <div>
+              <div style="font-size:27px;font-weight:700;margin-bottom:8px">FACTURE</div>
+              <strong>SAS A.L. Cochelard</strong>
+              <div style="color:#666;line-height:1.5">Boulangerie-Pâtisserie<br>33 rue Paul Langevin<br>54880 Thil</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:15px;font-weight:700;margin-bottom:7px">Facture n° ${invoiceNo}</div>
+              <div>Date : ${dateFr}</div>
+            </div>
+          </div>
+          <div style="border:1px solid #ccc;padding:14px;width:48%;min-height:110px;margin-bottom:18px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:7px">Facturé à</div>
+            <strong>${escHtml(clientName)}</strong>
+            <div style="color:#666;line-height:1.5">${escHtml(clientAddress).replace(/\n/g,'<br>')}${clientEmail ? '<br>'+escHtml(clientEmail) : ''}</div>
+          </div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+              <th style="padding:8px;background:#eee;text-align:left">Désignation</th>
+              <th style="padding:8px;background:#eee;text-align:right">Qté</th>
+              <th style="padding:8px;background:#eee;text-align:right">Prix TTC</th>
+              <th style="padding:8px;background:#eee;text-align:right">TVA</th>
+              <th style="padding:8px;background:#eee;text-align:right">Total TTC</th>
+            </tr></thead><tbody>${rows}</tbody>
+          </table>
+          <div style="width:310px;margin-left:auto;margin-top:18px">
+            ${Number(sale.discountPercent||0)>0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0"><span>Réduction</span><strong>${Number(sale.discountPercent).toFixed(2).replace('.00','')} %</strong></div>` : ''}
+            <div style="display:flex;justify-content:space-between;padding:5px 0"><span>Total HT</span><strong>${totalHT.toFixed(2)} €</strong></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0"><span>TVA</span><strong>${totalTVA.toFixed(2)} €</strong></div>
+            <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:bold;border-top:2px solid #222;margin-top:5px;padding-top:9px"><span>Total TTC</span><span>${Number(sale.total).toFixed(2)} €</span></div>
+          </div>
+          <div style="margin-top:45px;border-top:1px solid #ccc;padding-top:12px;color:#666;line-height:1.5">
+            Mode de règlement : ${sale.paymentMethod === 'card' ? 'Carte bancaire' : 'Espèces'}<br>
+            Document généré depuis la caisse de la boulangerie.
+          </div>`;
+
+        closeInvoiceModal();
+        document.getElementById('invoicePreviewOverlay').style.display = 'block';
+    }
+
+
+    function pdfAscii(str) {
+        return String(str || '')
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^\x20-\x7E]/g, '?')
+          .replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+    }
+
+    function showInvoicePDF() {
+        const d = currentInvoicePDFData;
+        if (!d || !d.sale) {
+            alert("Aucune facture à enregistrer.");
+            return;
+        }
+
+        const sale = d.sale;
+        let y = 790;
+        const cmds = [];
+        const textLine = (txt, x=50, size=10, bold=false) => {
+            cmds.push(`BT /${bold ? 'F2' : 'F1'} ${size} Tf ${x} ${y} Td (${pdfAscii(txt)}) Tj ET`);
+            y -= size + 5;
+        };
+        const rule = () => { cmds.push(`40 ${y} m 555 ${y} l S`); y -= 12; };
+
+        textLine("FACTURE", 50, 22, true);
+        textLine("SAS A.L. Cochelard", 50, 12, true);
+        textLine("Boulangerie-Patisserie - 33 rue Paul Langevin - 54880 Thil", 50, 9);
+        y -= 8;
+        textLine(`Facture n° ${d.invoiceNo}`, 50, 11, true);
+        textLine(`Date : ${d.dateFr}`, 50, 10);
+        y -= 8;
+        textLine("FACTURE A :", 50, 11, true);
+        textLine(d.clientName, 50, 10, true);
+        String(d.clientAddress || '').split(/\n/).forEach(a => textLine(a, 50, 10));
+        if (d.clientEmail) textLine(d.clientEmail, 50, 10);
+        y -= 8;
+        rule();
+        textLine("Designation                         Qte     Prix TTC     TVA      Total TTC", 50, 9, true);
+        rule();
+
+        let totalHT = 0, totalTVA = 0;
+        (sale.items || []).forEach(item => {
+            const qty = Number(item.quantity || item.quantite || 1);
+            const unit = Number(item.prix || 0);
+            const rate = Number(item.taxe || 5.5);
+            const ttc = unit * qty;
+            const ht = ttc / (1 + rate/100);
+            totalHT += ht;
+            totalTVA += ttc - ht;
+            let name = String(item.nom || '').slice(0, 30).padEnd(31, ' ');
+            const line = `${name} ${String(qty).padStart(3)}   ${unit.toFixed(2).padStart(8)} E   ${rate.toFixed(1).padStart(4)}%   ${ttc.toFixed(2).padStart(9)} E`;
+            textLine(line, 50, 9);
+            if (y < 110) y = 790; // ventes ordinaires: garde une marge de sécurité
+        });
+
+        y -= 10; rule();
+        textLine(`Total HT : ${totalHT.toFixed(2)} EUR`, 350, 11, true);
+        textLine(`TVA : ${totalTVA.toFixed(2)} EUR`, 350, 11);
+        textLine(`TOTAL TTC : ${Number(sale.total || 0).toFixed(2)} EUR`, 350, 14, true);
+        y -= 15;
+        textLine(`Reglement : ${sale.paymentMethod === 'card' ? 'Carte bancaire' : 'Especes'}`, 50, 10);
+
+        const stream = cmds.join('\n');
+        const objects = [];
+        objects[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+        objects[2] = '<< /Type /Pages /Kids [3 0 R] /Count 1 >>';
+        objects[3] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>';
+        objects[4] = `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`;
+        objects[5] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+        objects[6] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
+
+        let pdf = '%PDF-1.4\n';
+        const offsets = [0];
+        for (let i=1; i<=6; i++) {
+            offsets[i] = pdf.length;
+            pdf += `${i} 0 obj\n${objects[i]}\nendobj\n`;
+        }
+        const xref = pdf.length;
+        pdf += 'xref\n0 7\n0000000000 65535 f \n';
+        for (let i=1; i<=6; i++) pdf += String(offsets[i]).padStart(10,'0') + ' 00000 n \n';
+        pdf += `trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+
+        try {
+            const bytes = new TextEncoder().encode(pdf);
+            const blob = new Blob([bytes], {type:'application/pdf'});
+            const url = URL.createObjectURL(blob);
+
+            const frame = document.getElementById('invoicePdfFrame');
+            const panel = document.getElementById('invoicePdfPanel');
+            const preview = document.getElementById('invoicePreviewA4');
+
+            frame.src = url;
+            preview.style.display = 'none';
+            panel.style.display = 'block';
+
+            const btn = document.querySelector('[onclick="showInvoicePDF()"]');
+            if (btn) {
+                btn.textContent = '✅ PDF affiché ci-dessous';
+                btn.disabled = true;
+                btn.style.opacity = '0.75';
+            }
+            panel.scrollIntoView({behavior:'smooth', block:'start'});
+        } catch (err) {
+            alert('Erreur lors de la création du PDF : ' + (err && err.message ? err.message : err));
+        }
+    }
+
+
+    let bakeryClients = [];
+
+    function loadClients(){
+        try { bakeryClients = JSON.parse(localStorage.getItem('boulangerieClients') || '[]'); }
+        catch(e){ bakeryClients = []; }
+    }
+    function persistClients(){
+        localStorage.setItem('boulangerieClients', JSON.stringify(bakeryClients));
+        refreshInvoiceClientSelect();
+        refreshSaleClientSelect();
+    }
+    function openClientsModal(){
+        loadClients(); renderClients();
+        document.getElementById('clientsModal').classList.add('active');
+    }
+    function closeClientsModal(){ document.getElementById('clientsModal').classList.remove('active'); }
+    function newClient(){
+        document.getElementById('clientId').value='';
+        ['clientName','clientPhone','clientEmail','clientAddress','clientNote'].forEach(id=>document.getElementById(id).value='');
+        document.getElementById('clientForm').style.display='block';
+        document.getElementById('clientName').focus();
+    }
+    function cancelClientEdit(){ document.getElementById('clientForm').style.display='none'; }
+    function saveClient(){
+        const name=document.getElementById('clientName').value.trim();
+        if(!name){ alert('Entre le nom ou la société du client.'); return; }
+        const id=document.getElementById('clientId').value || String(Date.now());
+        const c={id,name,phone:document.getElementById('clientPhone').value.trim(),
+          email:document.getElementById('clientEmail').value.trim(),
+          address:document.getElementById('clientAddress').value.trim(),
+          note:document.getElementById('clientNote').value.trim()};
+        const i=bakeryClients.findIndex(x=>x.id===id);
+        if(i>=0) bakeryClients[i]=c; else bakeryClients.push(c);
+        bakeryClients.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+        persistClients(); cancelClientEdit(); renderClients();
+    }
+    function editClient(id){
+        const c=bakeryClients.find(x=>x.id===id); if(!c)return;
+        document.getElementById('clientId').value=c.id;
+        document.getElementById('clientName').value=c.name||'';
+        document.getElementById('clientPhone').value=c.phone||'';
+        document.getElementById('clientEmail').value=c.email||'';
+        document.getElementById('clientAddress').value=c.address||'';
+        document.getElementById('clientNote').value=c.note||'';
+        document.getElementById('clientForm').style.display='block';
+    }
+    function deleteClient(id){
+        const c=bakeryClients.find(x=>x.id===id);
+        if(!c || !confirm(`Supprimer le client « ${c.name} » ?`)) return;
+        bakeryClients=bakeryClients.filter(x=>x.id!==id);
+        persistClients(); renderClients();
+    }
+    function useClientForInvoice(id){
+        closeClientsModal();
+        openInvoiceModal();
+        refreshInvoiceClientSelect();
+        document.getElementById('invoiceClientSelect').value=id;
+        fillInvoiceFromClient();
+    }
+    function renderClients(){
+        const q=(document.getElementById('clientSearch').value||'').toLowerCase();
+        const list=document.getElementById('clientsList');
+        const filtered=bakeryClients.filter(c=>[c.name,c.email,c.phone,c.address].join(' ').toLowerCase().includes(q));
+        if(!filtered.length){ list.innerHTML='<p style="color:#777">Aucun client enregistré.</p>'; return; }
+        list.innerHTML=filtered.map(c=>`<div class="client-card">
+          <div><strong>${escHtml(c.name)}</strong><br><small>${escHtml(c.phone||'')}${c.email?' • '+escHtml(c.email):''}</small><br><small>${escHtml(c.address||'').replace(/\n/g,'<br>')}</small></div>
+          <div class="client-card-actions">
+            <button onclick="useClientForInvoice('${c.id}')" style="background:#2f7d32;color:white">🧾 Facture</button>
+            <button onclick="editClient('${c.id}')">Modifier</button>
+            <button onclick="deleteClient('${c.id}')" style="background:#b33;color:white">Supprimer</button>
+          </div></div>`).join('');
+    }
+    function refreshInvoiceClientSelect(){
+        loadClients();
+        const s=document.getElementById('invoiceClientSelect'); if(!s)return;
+        const selected=s.value;
+        s.innerHTML='<option value="">— Nouveau / aucun client —</option>'+
+          bakeryClients.map(c=>`<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+        if(bakeryClients.some(c=>c.id===selected)) s.value=selected;
+    }
+    function fillInvoiceFromClient(){
+        const id=document.getElementById('invoiceClientSelect').value;
+        const c=bakeryClients.find(x=>x.id===id);
+        if(!c)return;
+        document.getElementById('invoiceClientName').value=c.name||'';
+        document.getElementById('invoiceClientAddress').value=c.address||'';
+        document.getElementById('invoiceClientEmail').value=c.email||'';
+    }
+
+
+    let currentSaleClientId = '';
+
+    function refreshSaleClientSelect() {
+        loadClients();
+        const s = document.getElementById('saleClientSelect');
+        if (!s) return;
+        s.innerHTML = '<option value="">Comptoir / aucun client</option>' +
+            bakeryClients.map(c => `<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+        if (bakeryClients.some(c => c.id === currentSaleClientId)) s.value = currentSaleClientId;
+        else { currentSaleClientId = ''; s.value = ''; }
+        updateSelectedSaleClientLabel();
+    }
+
+    function selectSaleClient() {
+        const s = document.getElementById('saleClientSelect');
+        currentSaleClientId = s ? s.value : '';
+        updateSelectedSaleClientLabel();
+    }
+
+    function updateSelectedSaleClientLabel() {
+        const label = document.getElementById('selectedSaleClientName');
+        if (!label) return;
+        const c = bakeryClients.find(x => x.id === currentSaleClientId);
+        label.textContent = c ? `Vente affectée à : ${c.name}` : 'Vente comptoir';
+    }
+
+    function getCurrentSaleClient() {
+        return bakeryClients.find(x => x.id === currentSaleClientId) || null;
+    }
+
+    function clearSaleClient() {
+        currentSaleClientId = '';
+        const s = document.getElementById('saleClientSelect');
+        if (s) s.value = '';
+        updateSelectedSaleClientLabel();
+    }
+
+</script>
+
+
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+    });
+}
 </script>
 
 </body>
